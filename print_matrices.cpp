@@ -10,8 +10,13 @@
 #include <vector>
 
 int main(int argc, const char* argv[]) {
-   bool count_only = std::any_of(&argv[0] + 1, &argv[0] + argc, [](const char* p) { return std::strcmp(p, "count_only") == 0; });
-   bool n_as_bound = std::any_of(&argv[0] + 1, &argv[0] + argc, [](const char* p) { return std::strcmp(p, "n_as_bound") == 0; });
+   bool count_only = std::any_of(&argv[0] + 1, &argv[0] + argc, [](const char* p) { 
+      return std::strcmp(p, "count_only") == 0; 
+   });
+   bool n_as_bound = std::any_of(&argv[0] + 1, &argv[0] + argc, [](const char* p) {
+      return std::strcmp(p, "n_as_bound") == 0;
+   });
+   
    auto print = [&](int r, int s, int n, int t, int& total) {
       std::string input_file = std::format("cache/{}_{}_{}_{}.dat", r, s, n, t);
       std::cout << input_file << ": ";
