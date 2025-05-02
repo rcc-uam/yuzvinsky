@@ -1,0 +1,4 @@
+2297484 precomputed submatrices loaded in 0.77 seconds (570.96 MB of peak memory usage)
+4490735 new reduced matrices found in 41.68 seconds (1648.07 MB of peak memory usage)
+183514 quasi-isotopy classes
+1946994 new non-isotopic matrices found in 553.14 seconds (1753.18 MB of peak memory usage)
