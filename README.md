@@ -2,8 +2,7 @@
 
 This repository provides a sample implementation of algorithms for computing intecalate matrices and a computational proof of Yuzvinsky's conjecture up to $32 \times 32$, as described in the paper "A Computational Approach to Yuzvinsky's Conjecture on Intercalate Matrices" by Francisco Zaragoza and Rodrigo Castro. The following source code files and folders are provided.
 
-* `possible_rs_counterexamples.txt`: A list of integer pairs that denotes the set of possible $r \times s$ counterexamples of the Yuzvinsky's Conjecture up to $32 \times 32$.
-* `possible_rsnt_counterexamples.cpp`: A C++ program that is intended to take the `possible_rs_counterexamples.txt` list as input, and produces a list of integer 4-tuples that denotes the set of possible $[r, s, n, t]$ counterexamples of the Yuzvinsky's Conjecture up to $32 \times 32$.
+* `possible_rsnt_counterexamples.cpp`: A C++ program that takes a list as integer pairs $r$ and $s$ as input, and produces a list of integer 4-tuples that denotes the set of possible $[r, s, n, t]$ counterexamples of the Yuzvinsky's Conjecture.
 * `symmetric_rsnt_cases.cpp`: A C++ program that produces a list of integer 4-tuples that denotes the set of matrix types $[r, s, n, t]$ of all the non-isotopic symmetric intercalate matrices up to $16 \times 16$.
 * `full_8_rsnt_cases.cpp`: A C++ program that produces a list of integer 4-tuples that denotes the set of matrix types $[r, s, n, t]$ of all the non-isotopic intercalate matrices up to $8 \times 8$.
 * `intercalate_matrices.cpp`: A C++ program that computes the non-isotopic intercalate matrices of type $[r, s, n, t]$. Compiled and called automatically by the driver program. The program reads and writes files from the following folders:
@@ -15,6 +14,9 @@ This repository provides a sample implementation of algorithms for computing int
 * `print_matrices.cpp`: A C++ program that prints or counts the matrices of one or more $[r, s, n, t]$ types. A value of $-1$ for $n$ or for $t$ acts as a wildcard. The program supports the following command-line arguments:
   - `count_only`: Prints the number of matrices instead of printing their contents.
   - `n_as_bound`: If $n$ is not $-1$, considers every matrix with $n' \leq n$ colors. By default, only matrices with exactly $n$ colors are considered, as this matches the way in which the matrices are stored in the `cache/` folder.
-* `log_conjecture_proof.txt`: The output of the `print_matrices` program with the `count_only` and `n_as_bound` arguments, and when taking as input the list computed by the `possible_rsnt_counterexamples` program. This should be done after running the driver program with the same such list.
 
-Some additional logs from runs performed in our hardware are also provided. The C++ programs may be compiled with G++ 14.2 using the `-std=c++23` flag. However, the `intercalate_matrices` program is not intended to be compiled directly but from the driver program, as it needs additional flags that the latter provides. The algorithms were not optimized for microbenchmarking purposes, just for overall efficiency.
+Additionally, the `possible_rs_counterexamples.txt` file contains the list of integer pairs that denotes the set of possible $r \times s$ counterexamples of the Yuzvinsky's Conjecture up to $32 \times 32$. The output of the `possible_rsnt_counterexamples` program taking the previous file as input, together with the outputs of the `symmetric_rsnt_cases` and `full_8_rsnt_cases` programs, are also provided.
+
+We also include some logs from runs performed in our hardware. Finally, the `log_conjecture_proof.txt` is the output of the `print_matrices` program using the `count_only` and `n_as_bound` arguments, when taking as input the `possible_rs_counterexamples.txt` file. This log must be produced after running the driver program with the same such list.
+
+The C++ programs may be compiled with G++ 14.2 using the `-std=c++23` flag. However, the `intercalate_matrices` program is not intended to be compiled directly but from the driver program, as it needs additional flags that the latter provides. The algorithms were not optimized for microbenchmarking purposes, just for overall efficiency.
