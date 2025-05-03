@@ -15,7 +15,7 @@ This repository provides a sample implementation of algorithms for computing int
   - `count_only`: Prints the number of matrices instead of printing their contents.
   - `n_as_bound`: If $n$ is not $-1$, considers every matrix with $n' \leq n$ colors. By default, only matrices with exactly $n$ colors are considered, as this matches the way in which the matrices are stored in the `cache/` folder.
 
-Additionally, the `possible_rs_counterexamples.txt` file contains the list of integer pairs that denotes the set of possible $r \times s$ counterexamples of the Yuzvinsky's Conjecture up to $32 \times 32$. The output of the `possible_rsnt_counterexamples` program taking the previous file as input, together with the outputs of the `symmetric_rsnt_cases` and `full_8_rsnt_cases` programs, are also provided.
+Additionally, the `possible_rs_counterexamples.txt` file contains the list of integer pairs that denotes the set of possible $r \times s$ counterexamples of the Yuzvinsky's Conjecture up to $32 \times 32$. The output of the `possible_rsnt_counterexamples` program taking the previous file as input, together with the outputs of the `symmetric_rsnt_cases` and `full_8_rsnt_cases` programs, are also provided in the files `possible_rsnt_counterexamples.txt`, `symmetric_rsnt_cases.txt` and `full_8_rsnt_cases.txt`, respectively.
 
 We also include some logs from runs performed in our hardware. Finally, the `log_conjecture_proof.txt` is the output of the `print_matrices` program using the `count_only` and `n_as_bound` arguments, when taking as input the `possible_rs_counterexamples.txt` file. This log must be produced after running the driver program with the same such list.
 
