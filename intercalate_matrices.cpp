@@ -444,14 +444,20 @@
       }) << " quasi-isotopy classes\n";
 
       auto t4 = std::chrono::high_resolution_clock::now( );
-      std::array<tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>, n + 1> per_color;
+      std::vector<std::pair<int, tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>>> isotopy_jobs;
       for (int i = 1; i <= n; ++i) {
-         tbb::parallel_for_each(found[i].begin( ), found[i].end( ), [&](auto& pair) {
-            remove_isotopic(pair.second);
-            std::copy(pair.second.begin( ), pair.second.end( ), per_color[i].grow_by(pair.second.size( )));
-            pair.second.clear( ), pair.second.shrink_to_fit( );
-         });
+         for (auto& pair : found[i]) {
+            isotopy_jobs.emplace_back(i, std::move(pair.second));
+         }
+         found[i].clear( );
       }
+      std::array<tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>, n + 1> per_color;
+      tbb::parallel_for(tbb::blocked_range(isotopy_jobs.begin( ), isotopy_jobs.end( ), 1), [&](auto range) {
+         auto& pair = *range.begin( );
+         remove_isotopic(pair.second);
+         std::copy(pair.second.begin( ), pair.second.end( ), per_color[pair.first].grow_by(pair.second.size( )));
+         pair.second.clear( ), pair.second.shrink_to_fit( );
+      }, tbb::simple_partitioner( ));
       auto t5 = std::chrono::high_resolution_clock::now( );
       std::cout << std::accumulate(per_color.begin( ), per_color.end( ), 0z, [](std::size_t count, const auto& group) {
          return count + group.size( );
