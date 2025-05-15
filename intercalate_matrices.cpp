@@ -107,8 +107,8 @@
    }
 
    template<std::size_t E1, std::size_t E2>
-   std::array<int8_t, E1 * E2> layer_order_string(const matrix<int8_t, E1, E2>& m) {      // not clock-wise like described in the paper: from the edges of the layer to the center
-      std::array<int8_t, E1 * E2> res;
+   std::array<std::int8_t, E1 * E2> layer_order_string(const matrix<std::int8_t, E1, E2>& m) {      // not clock-wise like described in the paper: from the edges of the layer to the center
+      std::array<std::int8_t, E1 * E2> res;
       color_mapper color_map;
       for (int i = 0, w = 0; i < r; ++i) {
          for (int j = 0; j < std::min(i + 1, s); ++j) {
@@ -168,6 +168,10 @@
             std::sort(current.begin( ), current.end( ));
          }
          std::sort(relations.begin( ), relations.end( ));
+      }
+
+      int colors( ) const {
+         return (std::min(r, s) == 1 ? std::max(r, s) : intercalation_count.size( ) - std::count(intercalation_count.begin( ), intercalation_count.end( ), std::array<std::int16_t, 2>({ 0, 0 })));
       }
 
       std::strong_ordering operator<=>(const metadata&) const = default;
@@ -266,7 +270,7 @@
       } root;
 
       trie(const tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>& group) {
-         std::vector<std::pair<std::array<int8_t, r * s>, std::size_t>> insert_data;
+         std::vector<std::pair<std::array<std::int8_t, r * s>, std::size_t>> insert_data;
          for (std::size_t i = 0; i < group.size( ); ++i) {
             insert_data.emplace_back(layer_order_string(matrix<std::int8_t, r, s>(group[i])), i);
          }
@@ -304,15 +308,15 @@
          if (tree_level == r * s) {
             current.index = begin->second;
          } else {
-            std::sort(begin, end, [&](const std::pair<std::array<int8_t, r * s>, std::size_t>& a, const std::pair<std::array<int8_t, r * s>, std::size_t>& b) {
+            std::sort(begin, end, [&](const std::pair<std::array<std::int8_t, r * s>, std::size_t>& a, const std::pair<std::array<std::int8_t, r * s>, std::size_t>& b) {
                return a.first[tree_level] < b.first[tree_level];
             });
-            std::for_each(begin, end, [&](const std::pair<std::array<int8_t, r * s>, std::size_t>& a) {
+            std::for_each(begin, end, [&](const std::pair<std::array<std::int8_t, r * s>, std::size_t>& a) {
                current.in_node[a.first[tree_level]] = true;
             });
             current.children = std::make_unique<node[]>(current.in_node.count( ));
             for (std::size_t i = 0; begin != end; ++i) {
-               auto current_end = std::find_if(begin + 1, end, [&](const std::pair<std::array<int8_t, r * s>, std::size_t>& a) {
+               auto current_end = std::find_if(begin + 1, end, [&](const std::pair<std::array<std::int8_t, r * s>, std::size_t>& a) {
                   return a.first[tree_level] != begin->first[tree_level];
                });
                current.children[i] = insert(begin, current_end, tree_level + 1);
@@ -396,7 +400,7 @@
 
       auto t0 = std::chrono::high_resolution_clock::now( );
       std::vector<matrix<std::int8_t, r - 1, s>> precomputed_submatrices;
-      if (r - 1 == 0) {
+      if constexpr(r - 1 == 0) {
          precomputed_submatrices.push_back(matrix<std::int8_t, r - 1, s>( ));
       } else {
          const auto [rpl, spl, tpl] = predecessor(r, s, t);
@@ -407,6 +411,7 @@
                std::cout << "Could not open " << input_path << "\n";
                return 0;
             }
+
             if (r - 1 == rpl) {
                matrix<std::int8_t, r - 1, s> temp;
                while (ifs.read((char*)&temp[0][0], (r - 1) * s)) {
@@ -424,33 +429,26 @@
       std::cout << precomputed_submatrices.size( ) << " precomputed submatrices loaded in " << std::chrono::duration<double>(t1 - t0).count( ) << " seconds (" << memory_get_peak_usage( ) / 1e6 << " MB of peak memory usage)\n";
 
       auto t2 = std::chrono::high_resolution_clock::now( );
-      std::array<tbb::concurrent_map<metadata, tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>>, n + 1> found;
+      tbb::concurrent_map<metadata, tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>> found;
       tbb::parallel_for_each(precomputed_submatrices, [&](const matrix<std::int8_t, r - 1, s>& m) {
          backtracking_state state(m);
          compute_reduced_matrices<0>(state, [&] {
             if (!computed_color_groups[state.colors]) {
-               found[state.colors][metadata(state.m)].emplace_back(&m, state.m);
+               found[metadata(state.m)].emplace_back(&m, state.m);
             }
          });
       });
       auto t3 = std::chrono::high_resolution_clock::now( );
-      std::cout << std::accumulate(found.begin( ), found.end( ), 0z, [](std::size_t count, const tbb::concurrent_map<metadata, tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>>& color_groups) {
-         return count + std::accumulate(color_groups.begin( ), color_groups.end( ), 0z, [](std::size_t count, const auto& pair) {
-            return count + pair.second.size( );
-         });
+      std::cout << std::accumulate(found.begin( ), found.end( ), 0z, [](std::size_t count, const std::pair<metadata, tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>>& group_pair) {
+         return count + group_pair.second.size( );
       }) << " new reduced matrices found in " << std::chrono::duration<double>(t3 - t2).count( ) << " seconds (" << memory_get_peak_usage( ) / 1e6 << " MB of peak memory usage)\n";
-      std::cout << std::accumulate(found.begin( ), found.end( ), 0z, [](std::size_t count, const tbb::concurrent_map<metadata, tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>>& color_groups) {
-         return count + color_groups.size( );
-      }) << " quasi-isotopy classes\n";
+      std::cout << found.size( ) << " quasi-isotopy classes\n";
 
       auto t4 = std::chrono::high_resolution_clock::now( );
       std::vector<std::pair<int, tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>>> isotopy_jobs;
-      for (int i = 1; i <= n; ++i) {
-         for (auto& pair : found[i]) {
-            isotopy_jobs.emplace_back(i, std::move(pair.second));
-         }
-         found[i].clear( );
-      }
+      for (auto& [meta, group] : found) {
+         isotopy_jobs.emplace_back(meta.colors( ), std::move(group));
+      }; found.clear( );
       std::array<tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>, n + 1> per_color;
       tbb::parallel_for(tbb::blocked_range(isotopy_jobs.begin( ), isotopy_jobs.end( ), 1), [&](auto range) {
          auto& pair = *range.begin( );
