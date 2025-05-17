@@ -17,7 +17,7 @@ int main(int argc, const char* argv[]) {
       return std::strcmp(p, "n_as_bound") == 0;
    });
    
-   auto print = [&](int r, int s, int n, int t, int& total) {
+   auto print = [&](int r, int s, int n, int t, std::size_t& total) {
       std::string input_file = std::format("cache/{}_{}_{}_{}.dat", r, s, n, t);
       std::cout << input_file << ": ";
       std::ifstream ifs(input_file, std::ios_base::binary);
@@ -25,7 +25,7 @@ int main(int argc, const char* argv[]) {
          std::cout << "could not open file\n";
          return;
       }
-      int count = std::filesystem::file_size(input_file) / (r * s);
+      std::size_t count = std::filesystem::file_size(input_file) / (r * s);
       total += count;
       std::cout << count << " matrices\n";
 
@@ -45,7 +45,7 @@ int main(int argc, const char* argv[]) {
 
    int r, s, n, t;
    while (std::cin >> r >> s >> n >> t) {
-      int total = 0;
+      std::size_t total = 0;
       std::tie(r, s, t) = std::tuple_cat(label_order(r, s, t));
       auto [min_t, max_t] = (t == -1 ? std::pair(1, std::min(r, s)) : std::pair(t, t));
       for (int ti = min_t; ti <= max_t; ++ti) {

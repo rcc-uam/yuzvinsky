@@ -32,16 +32,16 @@
 #else
    constexpr int r = std::max(R_VALUE, S_VALUE), s = std::min(R_VALUE, S_VALUE), n = N_VALUE, t = T_VALUE;
 
-   template<typename T, std::size_t E1, std::size_t E2>
+   template<typename T, int E1, int E2>
    struct matrix : std::array<std::array<T, E2>, E1> { };
 
-   template<typename T, std::size_t E1, std::size_t E2>
-   struct augmented_matrix {
+   template<typename T, int E1, int E2>
+   struct matrix_augmentation {
       const matrix<T, E1 - 1, E2>* submatrix;
       std::array<T, E2> extra_row;
 
-      augmented_matrix( ) = default;
-      augmented_matrix(const matrix<T, E1 - 1, E2>* sm, const matrix<T, E1, E2>& m)
+      matrix_augmentation( ) = default;
+      matrix_augmentation(const matrix<T, E1 - 1, E2>* sm, const matrix<T, E1, E2>& m)
       : submatrix(sm) {
          std::copy_n(&m[E1 - 1][0], E2, extra_row.data( ));
       }
@@ -55,7 +55,7 @@
          return res;
       }
 
-      std::strong_ordering operator<=>(const augmented_matrix& m) const {
+      std::strong_ordering operator<=>(const matrix_augmentation& m) const {
          auto res = (*submatrix <=> *m.submatrix);
          return (res != 0 ? res : (extra_row <=> m.extra_row));
       }
@@ -70,7 +70,7 @@
          std::fill(table.begin( ), table.end( ), -1);
       }
 
-      std::int8_t operator[](int current) {
+      std::int8_t operator[](std::int8_t current) {
          if (table[current] == -1) {
             table[current] = next_color++;
          }
@@ -78,13 +78,19 @@
       }
    };
 
-   template<std::size_t E1, std::size_t E2>
-   int count_colors(const matrix<std::int8_t, E1, E2>& m) {
-      return (std::min(E1, E2) != 0 ? *std::max_element(&m[0][0], &m[0][0] + E1 * E2) + 1 : 0);
+   template<int E1, int E2>
+   int color_count(const matrix<std::int8_t, E1, E2>& m) {
+      int res = -1;
+      for (int i = 0; i < E1; ++i) {
+         for (int j = 0; j < E2; ++j) {
+            res = std::max(res, (int)m[i][j]);
+         }
+      }
+      return res + 1;
    }
 
-   template<std::size_t E1, std::size_t E2>
-   matrix<std::int8_t, E2, E1> transpose(const matrix<std::int8_t, E1, E2>& m) {
+   template<int E1, int E2>
+   matrix<std::int8_t, E2, E1> transposition(const matrix<std::int8_t, E1, E2>& m) {
       matrix<std::int8_t, E2, E1> res;
       for (int i = 0; i < E1; ++i) {
          for (int j = 0; j < E2; ++j) {
@@ -94,8 +100,8 @@
       return res;
    }
 
-   template<std::size_t E1, std::size_t E2>
-   matrix<std::int8_t, E1, E2> color_reduction(const matrix<std::int8_t, E1, E2>& m) {
+   template<int E1, int E2>
+   matrix<std::int8_t, E1, E2> matrix_reduction(const matrix<std::int8_t, E1, E2>& m) {
       matrix<std::int8_t, E1, E2> res;
       color_mapper color_map;
       for (int i = 0; i < E1; ++i) {
@@ -106,8 +112,8 @@
       return res;
    }
 
-   template<std::size_t E1, std::size_t E2>
-   std::array<std::int8_t, E1 * E2> layer_order_string(const matrix<std::int8_t, E1, E2>& m) {      // not clock-wise like described in the paper: from the edges of the layer to the center
+   template<int E1, int E2>
+   std::array<std::int8_t, E1 * E2> string_reduction(const matrix<std::int8_t, E1, E2>& m) {      // not clock-wise like described in the paper: from the edges of the layer to the center
       std::array<std::int8_t, E1 * E2> res;
       color_mapper color_map;
       for (int i = 0, w = 0; i < r; ++i) {
@@ -187,7 +193,7 @@
       std::int8_t color_position_in_column[s][n];
 
       backtracking_state(const matrix<std::int8_t, r - 1, s>& submatrix)
-      : colors(count_colors(submatrix)) {
+      : colors(color_count(submatrix)) {
          if constexpr(r - 1 != 0) {
             std::copy_n(&submatrix[0][0], (r - 1) * s, &m[0][0]);
          }
@@ -269,18 +275,18 @@
          }
       } root;
 
-      trie(const tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>& group) {
+      trie(const tbb::concurrent_vector<matrix_augmentation<std::int8_t, r, s>>& group) {
          std::vector<std::pair<std::array<std::int8_t, r * s>, std::size_t>> insert_data;
          for (std::size_t i = 0; i < group.size( ); ++i) {
-            insert_data.emplace_back(layer_order_string(matrix<std::int8_t, r, s>(group[i])), i);
+            insert_data.emplace_back(string_reduction(matrix<std::int8_t, r, s>(group[i])), i);
          }
          root = insert(insert_data.begin( ), insert_data.end( ), 0);
       }
 
-      void remove(const augmented_matrix<std::int8_t, r, s>& m) {
+      void remove(const matrix_augmentation<std::int8_t, r, s>& m) {
          node* p = root_iterator( );
          p->leaves -= 1;
-         for (std::int8_t c : layer_order_string(matrix<std::int8_t, r, s>(m))) {
+         for (std::int8_t c : string_reduction(matrix<std::int8_t, r, s>(m))) {
             p = p->get_child(c);
             p->leaves -= 1;
          }
@@ -290,7 +296,7 @@
          return &root;
       }
 
-      static std::size_t matrix_index(const node* p) {
+      static std::size_t matrix_id(const node* p) {
          return p->index;
       }
 
@@ -330,7 +336,7 @@
    template<int i>
    void permute(const matrix<std::int8_t, r, s>& m, color_mapper& color_map, std::array<int, r>& row_permutation, std::array<int, s>& col_permutation, trie::node* tree_iterator, auto&& callback) {
       if constexpr(i == r) {
-         callback(trie::matrix_index(tree_iterator));
+         callback(trie::matrix_id(tree_iterator));
       } else {
          auto permute_next = [&](color_mapper color_map, trie::node* tree_iterator) {
             for (int j = 0; j < std::min(i + 1, s); ++j) {
@@ -357,7 +363,7 @@
       }
    }
 
-   void remove_isotopic(tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>& group) {
+   void remove_isotopic(tbb::concurrent_vector<matrix_augmentation<std::int8_t, r, s>>& group) {
       std::sort(group.begin( ), group.end( ));
       trie tree(group);
       std::vector<bool> discard(group.size( ));
@@ -420,7 +426,7 @@
             } else {
                matrix<std::int8_t, s, r - 1> temp;
                while (ifs.read((char*)&temp[0][0], s * (r - 1))) {
-                  precomputed_submatrices.push_back(color_reduction(transpose(temp)));
+                  precomputed_submatrices.push_back(matrix_reduction(transposition(temp)));
                }
             }
          }
@@ -429,7 +435,7 @@
       std::cout << precomputed_submatrices.size( ) << " precomputed submatrices loaded in " << std::chrono::duration<double>(t1 - t0).count( ) << " seconds (" << memory_get_peak_usage( ) / 1e6 << " MB of peak memory usage)\n";
 
       auto t2 = std::chrono::high_resolution_clock::now( );
-      tbb::concurrent_map<metadata, tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>> found;
+      tbb::concurrent_map<metadata, tbb::concurrent_vector<matrix_augmentation<std::int8_t, r, s>>> found;
       tbb::parallel_for_each(precomputed_submatrices, [&](const matrix<std::int8_t, r - 1, s>& m) {
          backtracking_state state(m);
          compute_reduced_matrices<0>(state, [&] {
@@ -439,22 +445,22 @@
          });
       });
       auto t3 = std::chrono::high_resolution_clock::now( );
-      std::cout << std::accumulate(found.begin( ), found.end( ), 0z, [](std::size_t count, const std::pair<metadata, tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>>& group_pair) {
+      std::cout << std::accumulate(found.begin( ), found.end( ), 0z, [](std::size_t count, const std::pair<metadata, tbb::concurrent_vector<matrix_augmentation<std::int8_t, r, s>>>& group_pair) {
          return count + group_pair.second.size( );
       }) << " new reduced matrices found in " << std::chrono::duration<double>(t3 - t2).count( ) << " seconds (" << memory_get_peak_usage( ) / 1e6 << " MB of peak memory usage)\n";
       std::cout << found.size( ) << " quasi-isotopy classes\n";
 
       auto t4 = std::chrono::high_resolution_clock::now( );
-      std::vector<std::pair<int, tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>>> isotopy_jobs;
+      std::vector<std::pair<int, tbb::concurrent_vector<matrix_augmentation<std::int8_t, r, s>>>> isotopy_jobs;
       for (auto& [meta, group] : found) {
          isotopy_jobs.emplace_back(meta.colors( ), std::move(group));
       }; found.clear( );
-      std::array<tbb::concurrent_vector<augmented_matrix<std::int8_t, r, s>>, n + 1> per_color;
+      std::array<tbb::concurrent_vector<matrix_augmentation<std::int8_t, r, s>>, n + 1> per_color;
       tbb::parallel_for(tbb::blocked_range(isotopy_jobs.begin( ), isotopy_jobs.end( ), 1), [&](auto range) {
-         auto& pair = *range.begin( );
-         remove_isotopic(pair.second);
-         std::copy(pair.second.begin( ), pair.second.end( ), per_color[pair.first].grow_by(pair.second.size( )));
-         pair.second.clear( ), pair.second.shrink_to_fit( );
+         auto& [colors, group] = *range.begin( );
+         remove_isotopic(group);
+         std::copy(group.begin( ), group.end( ), per_color[colors].grow_by(group.size( )));
+         group.clear( ), group.shrink_to_fit( );
       }, tbb::simple_partitioner( ));
       auto t5 = std::chrono::high_resolution_clock::now( );
       std::cout << std::accumulate(per_color.begin( ), per_color.end( ), 0z, [](std::size_t count, const auto& group) {
@@ -472,12 +478,12 @@
             return 0;
          }
          tbb::parallel_sort(per_color[i].begin( ), per_color[i].end( ));
-         for (const augmented_matrix<std::int8_t, r, s>& m : per_color[i]) {
+         for (const matrix_augmentation<std::int8_t, r, s>& m : per_color[i]) {
             if (r == rl) {
                matrix<std::int8_t, r, s> temp(m);
                ofs.write((const char*)&temp[0][0], r * s);
             } else {
-               matrix<std::int8_t, s, r> temp = color_reduction(transpose(matrix<std::int8_t, r, s>(m)));
+               matrix<std::int8_t, s, r> temp = matrix_reduction(transposition(matrix<std::int8_t, r, s>(m)));
                ofs.write((const char*)&temp[0][0], s * r);
             }
          }
