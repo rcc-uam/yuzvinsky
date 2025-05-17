@@ -31,6 +31,7 @@
    static_assert(false, "The following positive macro values are required: R_VALUE, S_VALUE, N_VALUE, T_VALUE");
 #else
    constexpr int r = std::max(R_VALUE, S_VALUE), s = std::min(R_VALUE, S_VALUE), n = N_VALUE, t = T_VALUE;
+   static_assert(n <= 128, "Too many colors");
 
    template<typename T, int E1, int E2>
    struct matrix : std::array<std::array<T, E2>, E1> { };
@@ -177,7 +178,7 @@
       }
 
       int colors( ) const {
-         return (std::min(r, s) == 1 ? std::max(r, s) : intercalation_count.size( ) - std::count(intercalation_count.begin( ), intercalation_count.end( ), std::array<std::int16_t, 2>({ 0, 0 })));
+         return std::max({ r, s, (int)(intercalation_count.size( ) - std::count(intercalation_count.begin( ), intercalation_count.end( ), std::array<std::int16_t, 2>({ 0, 0 }))) });
       }
 
       std::strong_ordering operator<=>(const metadata&) const = default;
