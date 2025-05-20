@@ -149,23 +149,19 @@
          auto intercalation_count_by_color = intercalation_count;
          std::sort(intercalation_count.begin( ), intercalation_count.end( ));
 
-         std::int8_t ranking[n], w = 0;
+         int intercalation_ranking[n];
          for (int i = 0; i < n; ++i) {
-            w += (i != 0 && intercalation_count[i - 1] < intercalation_count[i]);
-            ranking[i] = w;
+            intercalation_ranking[i] = std::lower_bound(intercalation_count.begin( ), intercalation_count.end( ), intercalation_count_by_color[i]) - intercalation_count.begin( );
          }
-         auto intercalation_ranking = [&](std::int8_t c) {
-            return ranking[std::lower_bound(intercalation_count.begin( ), intercalation_count.end( ), intercalation_count_by_color[c]) - intercalation_count.begin( )];
-         };
 
          for (int i = 0; i < r; ++i) {
             for (int j = 0; j < s; ++j) {
                std::array<std::int8_t, r + s> row_col_rel;
                for (int ti = 0; ti < r; ++ti) {
-                  row_col_rel[ti] = intercalation_ranking(m[ti][j]);
+                  row_col_rel[ti] = intercalation_ranking[m[ti][j]];
                }
                for (int tj = 0; tj < s; ++tj) {
-                  row_col_rel[r + tj] = intercalation_ranking(m[i][tj]);
+                  row_col_rel[r + tj] = intercalation_ranking[m[i][tj]];
                }
                std::sort(row_col_rel.begin( ), row_col_rel.end( ));
                relations[m[i][j]].push_back(row_col_rel);
