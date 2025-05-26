@@ -485,7 +485,12 @@
             }
          }
          ofs.close( );
-         std::rename(output_path.c_str( ), std::format("cache/{}_{}_{}_{}.dat", rl, sl, i, tl).c_str( ));
+         std::string destination_path = std::format("cache/{}_{}_{}_{}.dat", rl, sl, i, tl);
+         std::remove(destination_path.c_str( ));
+         if (std::rename(output_path.c_str( ), destination_path.c_str( )) != 0) {
+            std::cout << "Could not move " << output_path << "\n";
+            return 0;
+         }
       }
    } catch (const std::exception& ex) {
       std::cout << ex.what( ) << "\n";

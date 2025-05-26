@@ -49,6 +49,10 @@ int main(int argc, const char* argv[]) {
 
    int r, s, n, t;
    while (std::cin >> r >> s >> n >> t) {
+      if (n < std::max(r, s)) {
+         std::cout << "Skipping " << r << " " << s << " " << n << " " << t << " (too few colors)\n";
+         continue;
+      }
       std::tie(r, s, t) = std::tuple_cat(label_order(r, s, t));
       compute_pending(r, s, n, t, max_n, listed, listing_order);
    }
