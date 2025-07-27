@@ -69,7 +69,7 @@ int main(int argc, const char* argv[]) {
             r, s, max_n[{ r, s, t }], t, (complete_recompute ? "-D COMPLETE_RECOMPUTE" : ""), executable_path
          ).c_str( ));
          std::cout << "   running...\n";
-         std::system((executable_path + std::format(" > logs/{}_{}_{}_{}.txt", r, s, max_n[{ r, s, t }], t)).c_str( ));
+         std::system(std::format("{} > logs/{}_{}_{}_{}.txt", executable_path, r, s, max_n[{ r, s, t }], t).c_str( ));
          std::remove(executable_path.c_str( ));
       }
    }
