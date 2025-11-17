@@ -34,6 +34,6 @@ g++ -std=c++23 full_rsnt_cases.cpp -o full_rsnt_cases
 g++ -std=c++23 possible_rsnt_counterexamples.cpp -o possible_rsnt_counterexamples
 g++ -std=c++23 symmetric_rsnt_cases.cpp -o symmetric_rsnt_cases
 g++ -std=c++23 print_matrices.cpp -o print_matrices
-./driver < input_conjecture_32_rsnt.txt                                 # compute the data to proof of the Yuzvinsky conjecture
+./driver < input_conjecture_32_rsnt.txt                                 # compute the data to prove the Yuzvinsky conjecture
 ./print_matrices count_only n_as_bound < input_conjecture_32_rsnt.txt   # verify the conjecture
 ```
