@@ -17,7 +17,7 @@ This repository provides a sample implementation of algorithms for computing int
 
 Additionally, the `input_conjecture_32_rs.txt` file contains the list of integer pairs denoting the set of possible $r \times s$ counterexamples of the Yuzvinsky's Conjecture up to $32 \times 32$. The output of the `possible_rsnt_counterexamples` program taking the previous file as input, together with outputs of the `symmetric_rsnt_cases` and `full_rsnt_cases` programs, are also provided in the files `input_conjecture_32_rsnt.txt`, `input_symmetric_16_rsnt.txt` and `input_full_8_rsnt.txt`, respectively.
 
-We also include logs from runs performed in our hardware. Finally, the `log_conjecture_32_proof.txt` is the output of the `print_matrices` program using the `count_only` and `n_as_bound` arguments, when taking as input the `input_conjecture_32_rsnt.txt` file. This log must be produced after running the driver program with the same input file.
+We also include logs from runs performed in our hardware. The `log_conjecture_32_proof.txt` is the output of the `print_matrices` program using the `count_only` and `n_as_bound` arguments, when taking as input the `input_conjecture_32_rsnt.txt` file. This log must be produced after running the driver program with the same input file.
 
 The C++ programs depend on the Intel® oneAPI Threading Building Blocks and may be compiled with G++ 13.3.0 using the `-std=c++23` flag. The `intercalate_matrices` program is not intended to be compiled directly, but from the driver program, as it needs additional flags that the latter provides. The algorithms were not optimized for microbenchmarking purposes, just for overall efficiency. On Ubuntu 24.04, the following commands may be used to compile and run the programs:
 
