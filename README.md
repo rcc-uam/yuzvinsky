@@ -19,7 +19,7 @@ Additionally, the `input_conjecture_32_rs.txt` file contains the list of integer
 
 We also include logs from runs performed in our hardware. The `log_conjecture_32_proof.txt` is the output of the `print_matrices` program using the `count_only` and `n_as_bound` arguments, when taking the `input_conjecture_32_rsnt.txt` file as input. This log must be produced after running the driver program with the same input file.
 
-The C++ programs depend on the Intel® oneAPI Threading Building Blocks and may be compiled with G++ 13.3.0 using the `-std=c++23` flag. The `intercalate_matrices` program is not intended to be compiled directly, but from the driver program, as it needs additional flags that the latter provides. The algorithms were not optimized for microbenchmarking purposes, just for overall efficiency. On Ubuntu 24.04, the following commands may be used to compile and run the programs that prove the conjecture:
+The C++ programs depend on the Intel® oneAPI Threading Building Blocks and may be compiled with G++ 13.3.0 using the `-std=c++23` flag. The `intercalate_matrices` program is not intended to be compiled directly, but from the driver program, as it needs additional flags that the latter provides. The algorithms were not optimized for microbenchmarking purposes, just for overall efficiency. On Ubuntu 24.04, the following *bash* commands may be used to compile and run the programs that prove the conjecture:
 
 ```
 sudo apt-get update
