@@ -10,8 +10,8 @@
 #include <vector>
 
 int main(int argc, const char* argv[]) {
-   bool count_only = std::any_of(&argv[0] + 1, &argv[0] + argc, [](const char* p) { 
-      return std::strcmp(p, "count_only") == 0; 
+   bool count_only = std::any_of(&argv[0] + 1, &argv[0] + argc, [](const char* p) {
+      return std::strcmp(p, "count_only") == 0;
    });
    bool n_as_bound = std::any_of(&argv[0] + 1, &argv[0] + argc, [](const char* p) {
       return std::strcmp(p, "n_as_bound") == 0;
@@ -47,7 +47,7 @@ int main(int argc, const char* argv[]) {
    while (std::cin >> r >> s >> n >> t) {
       std::size_t total = 0;
       std::tie(r, s, t) = std::tuple_cat(label_order(r, s, t));
-      std::cout << r << " " << s << " " << t << "...\n";
+      std::cout << r << " " << s << " " << n << " " << t << "...\n";
       auto [min_t, max_t] = (t == -1 ? std::pair(1, std::min(r, s)) : std::pair(t, t));
       for (int ti = min_t; ti <= max_t; ++ti) {
          auto [min_n, max_n] = (n == -1 ? std::pair(1, max_colors(r, s, ti)) : (n_as_bound ? std::pair(1, std::min(n, max_colors(r, s, ti))) : std::pair(n, n)));
