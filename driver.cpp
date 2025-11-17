@@ -65,7 +65,7 @@ int main(int argc, const char* argv[]) {
          std::cout << "already computed\n";
       } else {
          std::cout << "   compiling...\n";
-         std::system(std::format("g++ -std=c++23 -D R_VALUE={} -D S_VALUE={} -D N_VALUE={} -D T_VALUE={} {} -O3 -march=native -ltbb -lpthread intercalate_matrices.cpp -o {}",
+         std::system(std::format("g++ -std=c++23 -D R_VALUE={} -D S_VALUE={} -D N_VALUE={} -D T_VALUE={} {} intercalate_matrices.cpp -O3 -march=native -ltbb -lpthread -o {}",
             r, s, max_n[{ r, s, t }], t, (complete_recompute ? "-D COMPLETE_RECOMPUTE" : ""), executable_path
          ).c_str( ));
          std::cout << "   running...\n";
