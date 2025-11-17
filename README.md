@@ -19,4 +19,21 @@ Additionally, the `input_conjecture_32_rs.txt` file contains the list of integer
 
 We also include some logs from runs performed in our hardware. Finally, the `log_conjecture_32_proof.txt` is the output of the `print_matrices` program using the `count_only` and `n_as_bound` arguments, when taking as input the `input_conjecture_32_rsnt.txt` file. This log must be produced after running the driver program with the same input file.
 
-The C++ programs may be compiled with G++ 14.2 using the `-std=c++23` flag. However, the `intercalate_matrices` program is not intended to be compiled directly but from the driver program, as it needs additional flags that the latter provides. The algorithms were not optimized for microbenchmarking purposes, just for overall efficiency.
+The C++ programs depend on the Intel® oneAPI Threading Building Blocks and may be compiled with G++ 13.3.0 using the `-std=c++23` flag. However, the `intercalate_matrices` program is not intended to be compiled directly but from the driver program, as it needs additional flags that the latter provides. The algorithms were not optimized for microbenchmarking purposes, just for overall efficiency. On Ubuntu 24.04, the following commands may be used to compile and run the programs:
+
+```
+sudo apt-get update
+sudo apt install wget unzip g++ libtbb-dev
+
+wget https://github.com/rcc-uam/yuzvinsky/archive/refs/heads/main.zip -O yuzvinsky-main.zip
+unzip yuzvinsky-main.zip
+cd yuzvinsky-main
+
+g++ -std=c++23 driver.cpp -o driver
+g++ -std=c++23 full_rsnt_cases.cpp -o full_rsnt_cases
+g++ -std=c++23 possible_rsnt_counterexamples.cpp -o possible_rsnt_counterexamples
+g++ -std=c++23 symmetric_rsnt_cases.cpp -o symmetric_rsnt_cases
+g++ -std=c++23 print_matrices.cpp -o print_matrices
+./driver < input_conjecture_32_rsnt.txt                                 # compute the data to proof of the Yuzvinsky conjecture
+./print_matrices count_only n_as_bound < input_conjecture_32_rsnt.txt   # verify the conjecture
+```
